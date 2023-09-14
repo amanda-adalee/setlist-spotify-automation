@@ -3,12 +3,25 @@ from spotify_secrets import spotify_token, spotify_user_id
 
 import json
 import requests
+import pandas
 
-class Spotify:
+class Playlist:
 
-    def __init__(self):
+    def __init__(self, setlist_data):
+        self.setlist_data = self.parse_data(setlist_data)
         self.playlist_id = self.create_playlist()
-        self.uri_list = self.get_spotify_uri()
+        #self.uri_list = self.get_spotify_uri()
+
+    def parse_data(self, setlist_data):
+
+        tour_name = setlist_data["tour"]["name"]
+        print(tour_name)
+        artist = setlist_data["artist"]["name"]
+        print(artist)
+        song_list = setlist_data["sets"]["set"]
+
+        return tour_name
+
 
     def create_playlist(self):  # creates a new empty spotify playlist to add songs to
 
@@ -26,12 +39,20 @@ class Spotify:
 
         response = requests.post(query, data=request_body, headers=headers)
 
+        # check for valid response status
+        if response.status_code != 200:
+            raise ResponseException(response.status_code)
+
         response_json = response.json()
+
+        print(response_json["id"])
 
         # new playlist id
         return response_json["id"]
 
+
     def get_spotify_uri(self, setlist_data): # searches for a song
+
 
         uri_list = []
         # todo: parse setlist data and get song name and artist
@@ -80,3 +101,6 @@ class Spotify:
             raise ResponseException(response.status_code)
 
         return response.json()
+
+    #get_spotify_uri()
+    #add_songs_to_playlist()

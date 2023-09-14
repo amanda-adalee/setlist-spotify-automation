@@ -3,8 +3,7 @@ import requests
 class Setlist:
     def __init__(self, setlist_id):
         self.id = setlist_id
-        self.all_details = self.get_setlist()
-        self.tour_name = self.get_tour_name()
+        self.json_data = self.get_setlist()
 
     def get_setlist(self):
 
@@ -18,15 +17,9 @@ class Setlist:
         response = requests.get(url, headers=headers)
 
         # check for valid response status
-        if response.status_code != 200:
+        if response.status_code != 201:
             raise ResponseException(response.status_code)
 
         json_response = response.json()
-
+        print(json_response)
         return json_response
-
-    def get_tour_name(self):
-
-        tour_name = self.get_setlist()["tour"]["name"]
-
-        return tour_name
