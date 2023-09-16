@@ -1,6 +1,4 @@
-from exceptions import ResponseException
-from spotify_secrets import spotify_token, spotify_user_id
-
+from spotify_auth import get_access_token, get_user
 import json
 import requests
 import pandas
@@ -31,17 +29,14 @@ class Playlist:
             "public": True
         })
 
-        query = f"https://api.spotify.com/v1/users/{spotify_user_id}/playlists"
+        query = f"https://api.spotify.com/v1/users/{get_user()}/playlists"
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {spotify_token}"
+            "Authorization": f"Bearer BQCX2sCHT3qjBY6XCBwCWeS2AsUNZQMlxl4SySMj1KpqaYGa_RCeCOmFE7joS6TQC2qfONOWDnZGTPPyeauXJaRtVcQK-f52iSwZDKfJgDMe1mANF-Od-jTO1-e_22Y076jyF5BhZlhWFdR5lSIksrsk5UqxrjqoLudVo-EbLRDtI4A3VcVwaNg5VU6iSgruDCZJR6sCUQtZpt8H_UlDxySFe8u4LrvpmcsisTsAwSfsdPAmrL32LMeR6JVi0lXMTa9Vx56VBogxEQ"
         }
 
         response = requests.post(query, data=request_body, headers=headers)
-
-        # check for valid response status
-        if response.status_code != 200:
-            raise ResponseException(response.status_code)
+        response.raise_for_status()
 
         response_json = response.json()
 
@@ -67,6 +62,7 @@ class Playlist:
             }
 
             response = requests.get(query, headers=headers)
+            response.raise_for_status()
 
             response_json = response.json()
             songs = response_json["tracks"]["items"]
@@ -95,10 +91,7 @@ class Playlist:
         }
 
         response = requests.post(query, data=request_data, headers=headers)
-
-        # check for valid response status
-        if response.status_code != 200:
-            raise ResponseException(response.status_code)
+        response.raise_for_status()
 
         return response.json()
 
