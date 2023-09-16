@@ -1,7 +1,9 @@
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, url_for, session, redirect
 import time
+import spotipy
 
+ACCESS_TOKEN = ''
 
 # initialize flask app, set session cookie, set a random secret key to sign the cookie
 app = Flask(__name__)
@@ -33,20 +35,18 @@ def redirect_page():
     # save the token info in the session
     session[TOKEN_INFO] = token_info
     # redirect the user to the save_discover_weekly route
-    return redirect(url_for('create_setlist_playlist', _external=True))
+    return redirect(url_for('success_page', _external=True))
 
 
-@app.route('/createSetlistPlaylist')
-def create_setlist_playlist():
+@app.route('/success')
+def success_page():
+    token = get_token()
 
-    try:
-        # get the token info from the session
-        token_info = get_access_token()
-    except:
-        # if the token info is not found, redirect the user to the login route
-        print('User not logged in')
-        return redirect("/")
-    return ('OATH Successful')
+    if not token:
+        return 'authentication failed!'
+
+    return 'access token retrieved. authentication successful!'
+
 
 def create_spotify_oauth():
 
@@ -58,9 +58,9 @@ def create_spotify_oauth():
     )
 
 # spotify client_secret information
-def get_access_token():
+def get_token():
 
-    token_info = session.get(TOKEN_INFO, None)
+    token_info = session.get(TOKEN_INFO)
     # check if token info is empty, and redirect the user to login to create token info
     if not token_info:
         redirect(url_for('login', _external=False))
@@ -73,9 +73,13 @@ def get_access_token():
 
     access_token = token_info['access_token']
 
+    global ACCESS_TOKEN
+    ACCESS_TOKEN = access_token
+
     return access_token
 
-
-def get_user():
-    user_id = "vjiijnceu24pbs6p3i1g77efa"
-    return user_id
+def get_access():
+    return ACCESS_TOKEN
+# hard coded username
+def get_username():
+    return "vjiijnceu24pbs6p3i1g77efa"
