@@ -1,9 +1,9 @@
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, url_for, session, redirect
 import time
-import spotipy
 
-ACCESS_TOKEN = ''
+
+ACCESS_TOKEN = ''  # TODO: don't save access token like this
 
 # initialize flask app, set session cookie, set a random secret key to sign the cookie
 app = Flask(__name__)
@@ -42,14 +42,15 @@ def redirect_page():
 def success_page():
     token = get_token()
 
+    # will return authentication status. server must be shut down at this point to continue execution
     if not token:
         return 'authentication failed!'
-
-    return 'access token retrieved. authentication successful!'
+    else:
+        return 'access token retrieved. authentication successful!'
 
 
 def create_spotify_oauth():
-
+    # client id and secret are found on the created spotify app
     return SpotifyOAuth(
         client_id='d361fa3114b14fbf9475300951a3bfcb',
         client_secret='5e6392016eb24f6e90573f3ea72d27bf',
@@ -57,7 +58,8 @@ def create_spotify_oauth():
         scope='user-library-read playlist-modify-public playlist-modify-private'
     )
 
-# spotify client_secret information
+# spotify client secret information
+# function for token handling - retrieves, refreshes and saves the access token
 def get_token():
 
     token_info = session.get(TOKEN_INFO)
@@ -71,15 +73,21 @@ def get_token():
     if is_expired:
         token_info = create_spotify_oauth().refresh_access_token(token_info['refresh_token'])
 
+    # full token info can be found in .cache, only want the access token
     access_token = token_info['access_token']
 
+    # saves the cached access token to the global variable below
     global ACCESS_TOKEN
     ACCESS_TOKEN = access_token
 
     return access_token
 
+
+# this gets called after the server is shut down, simply importing global variable instead returns empty string
 def get_access():
     return ACCESS_TOKEN
-# hard coded username
+
+
+# hard coded username...
 def get_username():
     return "vjiijnceu24pbs6p3i1g77efa"
