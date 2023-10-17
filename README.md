@@ -1,7 +1,7 @@
 # SetlistToPlaylist
 A python script that takes a Setlist.fm url, and generates a Spotify playlist with the songs from the setlist.
 
-## Technologies
+## Built with
 * Setlist.fm API
 * Spotify Web API
 * Flask
@@ -9,5 +9,6 @@ A python script that takes a Setlist.fm url, and generates a Spotify playlist wi
 
 ## ToDo
 * Tests
+* Programmatically shut down server
 * Check if playlist already exist
 * Logger

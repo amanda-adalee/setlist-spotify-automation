@@ -18,7 +18,7 @@ class Playlist:
         if "tour" in self.setlist_data:
             tour_name = self.setlist_data["tour"]["name"]
         else:
-            tour_name = "Most Recent Tour"  # TODO: think of something better
+            tour_name = "Setlist"
 
         query = f"https://api.spotify.com/v1/users/{get_username()}/playlists"
         headers = {
