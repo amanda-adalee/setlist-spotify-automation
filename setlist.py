@@ -1,5 +1,5 @@
-from setlist_auth import API_KEY
 import requests
+import os
 
 class Setlist:
 
@@ -24,7 +24,7 @@ class Setlist:
 
         headers = {
             "Accept": "application/json",
-            "x-api-key": f"{API_KEY}"
+            "x-api-key": os.environ['setlist.fm_api_key']
             }
 
         # send the request and save the response
