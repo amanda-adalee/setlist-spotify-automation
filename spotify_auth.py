@@ -105,5 +105,5 @@ def get_access():
         return None
 
 
-def get_username():  # TODO: # Implement user-specific logic
+def get_username():  # TODO: implement user-specific logic
     return os.environ['adalee']

@@ -8,6 +8,6 @@ A python script that takes a Setlist.fm url, and generates a Spotify playlist wi
 * Requests Library
 
 ## ToDo
-* Tests
+* Unit Tests
 * Programmatically shut down server
 * Make browser extension
