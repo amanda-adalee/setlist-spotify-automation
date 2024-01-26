@@ -1,9 +1,9 @@
+import requests
 from spotipy.oauth2 import SpotifyOAuth
 from flask import Flask, request, url_for, session, redirect
 import time
 import json
 import os
-
 
 # initialize flask app, set session cookie, set a random secret key to sign the cookie
 app = Flask(__name__)
@@ -12,6 +12,7 @@ app.secret_key = os.urandom(24)
 
 # set the key for the token info in the session dictionary
 TOKEN_INFO_KEY = 'spotify_token_info'
+
 
 # route to handle user logging in to spotify
 # the login function will be called when address to the app route is reached
@@ -26,7 +27,6 @@ def login():
 # route to handle the redirect uri after authorization
 @app.route('/redirect')
 def redirect_page():
-
     session.clear()
     # extract/get the authorization code from the request parameters
     code = request.args.get('code')
@@ -34,20 +34,32 @@ def redirect_page():
     token_info = create_spotify_oauth().get_access_token(code)
     # save the token info in the session
     session[TOKEN_INFO_KEY] = token_info
-    # redirect the user to the save_discover_weekly route
+
+    # redirect the user success page
     return redirect(url_for('success_page', _external=True))
 
 
 @app.route('/success')
 def success_page():
     token = get_token()
-    print(f'token: {token}')
 
     # will return authentication status. server must be shut down at this point to continue execution
     if not token:
         return 'authentication failed!'
     else:
-        return 'access token retrieved. authentication successful!'
+        # fetch user profile and store user ID
+        user_profile = get_user_profile(token)
+
+        return f"access code retrieved for user:{user_profile['id']}. authorization successful!"
+
+
+# fetch username
+def get_user_profile(access_token):
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get("https://api.spotify.com/v1/me", headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    return None
 
 
 def create_spotify_oauth():
@@ -56,17 +68,18 @@ def create_spotify_oauth():
         client_id=os.environ['client_id'],
         client_secret=os.environ['client_secret'],
         redirect_uri=url_for('redirect_page', _external=True),
-        scope='user-library-read playlist-modify-public playlist-modify-private'
+        scope='user-library-read playlist-modify-public playlist-modify-private',
+        #show_dialog=True
     )
+
 
 # spotify client secret information
 # function for token handling - retrieves, refreshes and saves the access token
 def get_token():
-
     token_info = session.get(TOKEN_INFO_KEY)
     # check if token info is empty, and redirect the user to login to create token info
     if not token_info:
-        redirect(url_for('login', _external=False))
+        return redirect(url_for('login', _external=True))
 
     # check if the token is expired or expires in less than 1 minute, and get the refresh token
     current_time = int(time.time())
@@ -76,7 +89,7 @@ def get_token():
         session[TOKEN_INFO_KEY] = token_info
 
     # save token info into a json file
-    with open('token_info.json', 'w') as file: #TODO: implement redis to store this information
+    with open('token_info.json', 'w') as file:  # TODO: implement redis to store this information
         json.dump(token_info, file)
 
     return token_info['access_token']
@@ -91,5 +104,6 @@ def get_access():
     except FileNotFoundError:
         return None
 
+
 def get_username():  # TODO: # Implement user-specific logic
-    return ''
+    return os.environ['adalee']
